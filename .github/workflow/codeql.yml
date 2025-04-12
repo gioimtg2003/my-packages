@@ -1,0 +1,39 @@
+name: "CodeQL"
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
+    schedule:
+        - cron: "0 17 * * 4" # Schedule weekly scan every Thursday at 17:00 UTC
+
+permissions:
+    contents: read # Read permissions are sufficient for this action.
+
+jobs:
+    analyse:
+        permissions:
+            security-events: write # Write permissions for security events are needed
+        name: Analyse
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 2 # Ensure we fetch sufficient history for PR checkout
+
+            - run: git checkout HEAD^2
+              if: ${{ github.event_name == 'pull_request' }} # Checkout the head of PR
+
+            - name: Initialize CodeQL
+              uses: github/codeql-action/init@v3
+              with:
+                  queries: +security-extended
+
+            - name: Autobuild
+              uses: github/codeql-action/autobuild@v3
+
+            - name: Perform CodeQL Analysis
+              uses: github/codeql-action/analyze@v3
