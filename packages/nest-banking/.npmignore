@@ -7,3 +7,5 @@
 # configuration
 tsconfig.json
 .prettierrc
+
+*.tsbuildinfo
