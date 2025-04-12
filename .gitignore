@@ -1,0 +1,11 @@
+packages/*/package-lock.json
+
+# dependencies
+node_modules/
+
+/.vscode
+
+packages/**/*.d.ts
+packages/**/*.js
+.npmrc
+pnpm-lock.yaml
