@@ -1,0 +1,8 @@
+export enum REDIS_MODULE_CONNECTION {
+  DEFAULT = 'DEFAULT',
+  CACHE = 'CACHE',
+}
+
+export enum BANK_MODULE_CONNECTION {
+  ICB = 'ICB',
+}
