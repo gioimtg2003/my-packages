@@ -9,3 +9,5 @@ packages/**/*.d.ts
 packages/**/*.js
 .npmrc
 pnpm-lock.yaml
+
+*.tsbuildinfo

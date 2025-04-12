@@ -9,7 +9,7 @@
   "keywords": [],
   "author": "Nguyen Cong Gioi",
   "scripts": {
-    "build": "tsc -b packages",
+    "build": "tsc -b -v packages",
     "build:dev": "tsc -b -v packages --watch"
   },
   "license": "MIT",

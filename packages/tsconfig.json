@@ -2,9 +2,6 @@
     "files": [],
     "references": [
         {
-            "path": "./express-banking/tsconfig.build.json"
-        },
-        {
             "path": "./nest-banking/tsconfig.build.json"
         }
     ],
