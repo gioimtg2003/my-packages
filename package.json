@@ -10,7 +10,10 @@
   "author": "Nguyen Cong Gioi",
   "scripts": {
     "build": "tsc -b -v packages",
-    "build:dev": "tsc -b -v packages --watch"
+    "build:dev": "tsc -b -v packages --watch",
+    "lint": "npm run lint:packages",
+    "lint:fix": "npm run lint:packages -- --fix",
+    "lint:packages": "eslint"
   },
   "license": "MIT",
   "devDependencies": {
@@ -26,5 +29,8 @@
     "prettier": "^3.5.3",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.29.1"
+  },
+  "dependencies": {
+    "@nestjs/cli": "^11.0.6"
   }
 }

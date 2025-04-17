@@ -1,14 +1,13 @@
-import { defineConfig, } from "eslint/config";
-import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
-import { configs } from "@eslint/js";
-import globals from 'globals';
+const { defineConfig } = require("eslint/config");
+const globals = require('globals');
+const eslintPluginPrettierRecommended = require('eslint-plugin-prettier/recommended');
+const eslint = require('@eslint/js');
 
-export default defineConfig({
+module.exports = defineConfig({
     ignores: ['node_modules', '**/node_modules/**', '**/*.js', '**/*.d.ts'],
-    extends: [
-        'eslint-plugin-prettier/recommended',
-        '@eslint/js/recommended',
-    ],
+    files: ['**/*.ts'],
+    extends: [eslint.configs.recommended, eslintPluginPrettierRecommended],
+
     languageOptions: {
         globals: {
             ...globals.node,
@@ -16,11 +15,10 @@ export default defineConfig({
         },
         ecmaVersion: 2020,
         sourceType: 'module',
-        parser: '@typescript-eslint/parser',
         parserOptions: {
             project: ['tsconfig.json', 'tsconfig.spec.json'],
             projectService: true,
-            tsconfigRootDir: import.meta.dirname,
+            tsconfigRootDir: __dirname,
         },
     },
     rules: {

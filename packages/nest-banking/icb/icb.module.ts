@@ -7,6 +7,9 @@ import { ICBService } from './icb.service';
 
 @Module({})
 export class ICBModule {
+  /**
+   * Please store the passed parameters in the environment file and ignore them when pushing to github.
+   */
   static forRoot(options: BankModuleOptions): DynamicModule {
     const providers: Provider[] = [
       {

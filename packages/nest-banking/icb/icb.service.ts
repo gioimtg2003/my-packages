@@ -15,6 +15,7 @@ import * as crypto from 'crypto';
 import * as qs from 'qs';
 import * as NodeRSA from 'node-rsa';
 import dayjs = require('dayjs');
+import promiseRetry from 'promise-retry';
 
 @Injectable()
 export class ICBService {
@@ -76,19 +77,43 @@ export class ICBService {
     const headers = await this.createHeaderNull();
     const body = await this.handleBodyRequest(params);
 
-    const { data } = await firstValueFrom(
-      this.httpService
-        .post(
-          `${ICB_API_URL.GET_HIST_TRANSACTIONS}`,
-          { ...body },
-          { headers, timeout: 10000 },
-        )
-        .pipe(
-          catchError(error => {
-            throw error;
-          }),
-        ),
+    const data = await promiseRetry(
+      async (retry, attempt) => {
+        try {
+          const response = await firstValueFrom(
+            this.httpService
+              .post(
+                ICB_API_URL.GET_HIST_TRANSACTIONS,
+                { ...body },
+                { headers, timeout: 10000 },
+              )
+              .pipe(
+                catchError((error: any) => {
+                  throw error;
+                }),
+              ),
+          );
+          return response.data;
+        } catch (error) {
+          // Chỉ retry cho các lỗi liên quan đến kết nối hoặc timeout
+          if (
+            error.code === 'ECONNABORTED' || // Timeout
+            error.code === 'ECONNRESET' || // Kết nối bị reset
+            error.response?.status >= 500 // Lỗi server
+          ) {
+            retry(error);
+          }
+          throw error; // Ném lỗi nếu không thể retry
+        }
+      },
+      {
+        retries: 3, // Số lần thử lại
+        minTimeout: 1000, // Thời gian chờ tối thiểu giữa các lần thử (ms)
+        maxTimeout: 3000, // Thời gian chờ tối đa
+        factor: 2, // Hệ số tăng thời gian chờ
+      },
     );
+
     return data;
   }
 
