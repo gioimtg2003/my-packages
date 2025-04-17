@@ -2,17 +2,19 @@ const { defineConfig } = require("eslint/config");
 const globals = require('globals');
 const eslintPluginPrettierRecommended = require('eslint-plugin-prettier/recommended');
 const eslint = require('@eslint/js');
+const tseslint = require('typescript-eslint');
 
 module.exports = defineConfig({
     ignores: ['node_modules', '**/node_modules/**', '**/*.js', '**/*.d.ts'],
     files: ['**/*.ts'],
-    extends: [eslint.configs.recommended, eslintPluginPrettierRecommended],
+    extends: [eslint.configs.recommended, eslintPluginPrettierRecommended, ...tseslint.configs.recommendedTypeChecked],
 
     languageOptions: {
         globals: {
             ...globals.node,
             ...globals.jest,
         },
+        parser: require('@typescript-eslint/parser'),
         ecmaVersion: 2020,
         sourceType: 'module',
         parserOptions: {
