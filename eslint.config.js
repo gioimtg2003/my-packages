@@ -25,5 +25,11 @@ module.exports = defineConfig({
     },
     rules: {
         '@typescript-eslint/no-explicit-any': 'off',
+        '@typescript-eslint/no-unused-vars': ['warn', {
+            vars: 'all',
+            args: 'after-used',
+            varsIgnorePattern: '^_',
+            argsIgnorePattern: '^_',
+        }],
     }
 });
