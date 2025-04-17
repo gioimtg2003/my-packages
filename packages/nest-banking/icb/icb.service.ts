@@ -14,7 +14,7 @@ import { bypassCaptcha } from '../utils';
 import * as crypto from 'crypto';
 import * as qs from 'qs';
 import * as NodeRSA from 'node-rsa';
-import dayjs = require('dayjs');
+import * as dayjs from 'dayjs';
 import promiseRetry from 'promise-retry';
 
 @Injectable()
