@@ -11,3 +11,5 @@ packages/**/*.js
 pnpm-lock.yaml
 
 *.tsbuildinfo
+
+.env
