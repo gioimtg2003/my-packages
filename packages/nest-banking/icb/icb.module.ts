@@ -1,8 +1,9 @@
-import { DynamicModule, Module, Provider } from '@nestjs/common';
-import { BankModuleOptions } from '../types';
-import { BANK_MODULE_CONNECTION } from '../constants';
 import { HttpModule } from '@nestjs/axios';
+import { DynamicModule, Module, Provider } from '@nestjs/common';
+import { BANK_MODULE_CONNECTION } from '../constants';
+import { CryptoModule } from '../crypto';
 import { RedisModule } from '../redis';
+import { BankModuleOptions } from '../types';
 import { ICBService } from './icb.service';
 
 @Module({})
@@ -31,7 +32,7 @@ export class ICBModule {
 
     return {
       module: ICBModule,
-      imports,
+      imports: [...imports, CryptoModule],
       providers,
       exports: [ICBService],
     };

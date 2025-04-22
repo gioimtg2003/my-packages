@@ -1,4 +1,8 @@
+import { HttpService } from '@nestjs/axios';
 import { Inject, Injectable, Optional } from '@nestjs/common';
+import * as dayjs from 'dayjs';
+import * as qs from 'qs';
+import { catchError, firstValueFrom } from 'rxjs';
 import {
   BANK_MODULE_CONNECTION,
   BROWSER_INFO,
@@ -6,16 +10,10 @@ import {
   ICB_API_URL,
   ICB_PUBLIC_KEY,
 } from '../constants';
-import { HttpService } from '@nestjs/axios';
+import { CryptoService } from '../crypto';
 import { RedisCacheService } from '../redis/redis.service';
 import { BankModuleOptions, IICBResponse } from '../types';
-import { catchError, firstValueFrom } from 'rxjs';
 import { bypassCaptcha } from '../utils';
-import * as crypto from 'crypto';
-import * as qs from 'qs';
-import * as NodeRSA from 'node-rsa';
-import * as dayjs from 'dayjs';
-import promiseRetry from 'promise-retry';
 
 @Injectable()
 export class ICBService {
@@ -34,25 +32,30 @@ export class ICBService {
     @Optional() private readonly cacheService: RedisCacheService,
     @Inject(BANK_MODULE_CONNECTION.ICB)
     private readonly config: BankModuleOptions,
+    private readonly cryptoService: CryptoService,
   ) {}
 
-  async getTransactions(
-    search: string = '',
-    startDate?: string,
-    endDate?: string,
-    limit?: number,
-  ) {
+  async getTransactions({
+    search,
+    endDate,
+    limit,
+    startDate,
+  }: {
+    search?: string;
+    startDate?: string;
+    endDate?: string;
+    limit?: number;
+  }) {
     let isLogin = this.isLoggedIn;
-    let session = this.sessionId;
 
     if (this.cacheService) {
       isLogin = (await this.cacheService.get(this.CACHE_KEY.LOGIN)) === 'true';
-      session = await this.cacheService.get(this.CACHE_KEY.SESSION);
+      this.sessionId = await this.cacheService.get(this.CACHE_KEY.SESSION);
     }
 
     if (!isLogin) {
       await this.login(this.config.auth.username, this.config.auth.access_code);
-      session = !this.cacheService
+      this.sessionId = !this.cacheService
         ? this.sessionId
         : await this.cacheService.get(this.CACHE_KEY.SESSION);
     }
@@ -61,7 +64,7 @@ export class ICBService {
     const yesterday = dayjs().subtract(1, 'day').format('YYYY-MM-DD');
 
     const params = {
-      accountNumber: this.config.auth.username,
+      accountNumber: `${this.config.auth.id_number}`,
       endDate: endDate || dateNow,
       startDate: startDate || yesterday,
       maxResult: String(limit || 10),
@@ -70,51 +73,27 @@ export class ICBService {
       tranType: '',
       lang: 'vi',
       searchFromAmt: '',
-      searchKey: search,
+      searchKey: search || '',
       searchToAmt: '',
     };
 
     const headers = await this.createHeaderNull();
     const body = await this.handleBodyRequest(params);
 
-    const data = await promiseRetry(
-      async (retry, attempt) => {
-        try {
-          const response = await firstValueFrom(
-            this.httpService
-              .post(
-                ICB_API_URL.GET_HIST_TRANSACTIONS,
-                { ...body },
-                { headers, timeout: 10000 },
-              )
-              .pipe(
-                catchError((error: any) => {
-                  throw error;
-                }),
-              ),
-          );
-          return response.data;
-        } catch (error) {
-          // Chỉ retry cho các lỗi liên quan đến kết nối hoặc timeout
-          if (
-            error.code === 'ECONNABORTED' || // Timeout
-            error.code === 'ECONNRESET' || // Kết nối bị reset
-            error.response?.status >= 500 // Lỗi server
-          ) {
-            retry(error);
-          }
-          throw error; // Ném lỗi nếu không thể retry
-        }
-      },
-      {
-        retries: 3, // Số lần thử lại
-        minTimeout: 1000, // Thời gian chờ tối thiểu giữa các lần thử (ms)
-        maxTimeout: 3000, // Thời gian chờ tối đa
-        factor: 2, // Hệ số tăng thời gian chờ
-      },
+    const response = await firstValueFrom(
+      this.httpService
+        .post(
+          ICB_API_URL.GET_HIST_TRANSACTIONS,
+          { ...body },
+          { headers, timeout: 10000 },
+        )
+        .pipe(
+          catchError((error: any) => {
+            throw error;
+          }),
+        ),
     );
-
-    return data;
+    return response.data;
   }
 
   async login(username: string, password: string) {
@@ -144,9 +123,9 @@ export class ICBService {
           { headers, timeout: 10000 },
         )
         .pipe(
-          catchError((error: any) => {
+          catchError(async (error: any) => {
             if (this.cacheService) {
-              this.cacheService.del(this.CACHE_KEY.LOGIN);
+              await this.cacheService.del(this.CACHE_KEY.LOGIN);
             } else {
               this.isLoggedIn = false;
               this.sessionId = null;
@@ -189,25 +168,22 @@ export class ICBService {
     if (session) {
       param['sessionId'] = session;
     }
-
-    return await this.encryptData(param);
+    return this.encryptData(param);
   }
 
-  private async encryptData(data: { [key: string]: string | number | null }) {
-    data['signature'] = crypto
-      .createHash('md5')
-      .update(
+  private encryptData(data: { [key: string]: string | number | null }) {
+    data['signature'] = this.cryptoService
+      .md5(
         qs.stringify(data, {
           arrayFormat: 'repeat',
           sort: (a, b) => a.localeCompare(b),
         }),
       )
-      .digest('hex')
       .toString();
 
     const payload = JSON.stringify(data);
-    const key = new NodeRSA(ICB_PUBLIC_KEY);
-    const encrypt = key.encrypt(payload, 'base64');
+    const encrypt = this.cryptoService.encryptRsa(payload, ICB_PUBLIC_KEY);
+
     return {
       encrypted: encrypt,
     };

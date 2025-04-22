@@ -23,7 +23,7 @@ export function bypassCaptcha(svg: string): string | number {
   paths.forEach(path => {
     const p = path.match(/M([0-9]+)/);
     if (p) {
-      const pattern = path.replace(/[0-9 \.]/g, '');
+      const pattern = path.replace(/[0-9 \\.]/g, '');
       chars[parseInt(p[1])] = model[pattern];
     }
   });

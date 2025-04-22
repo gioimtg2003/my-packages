@@ -1,7 +1,17 @@
 export interface BankModuleOptions {
   auth: {
+    /**
+     * The username login to the bank account.
+     */
     username: string;
+    /**
+     * The password login to the bank account.
+     */
     access_code: string;
+    /**
+     * Account number of the bank account.
+     */
+    id_number: string;
   };
   redis?: {
     redis_url: string;

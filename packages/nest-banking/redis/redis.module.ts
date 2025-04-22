@@ -34,11 +34,13 @@ export class RedisModule implements OnApplicationShutdown {
     };
   }
 
-  onApplicationShutdown(signal?: string) {
+  onApplicationShutdown(_signal?: string) {
     return new Promise<void>(resolve => {
-      const redis = this.moduleRef.get(REDIS_MODULE_CONNECTION.CACHE);
+      const redis = this.moduleRef.get<Redis>(REDIS_MODULE_CONNECTION.CACHE);
 
-      redis.quit();
+      redis.quit().catch(err => {
+        console.error('Error while quitting Redis:', err);
+      });
       redis.on('end', () => {
         resolve();
       });
