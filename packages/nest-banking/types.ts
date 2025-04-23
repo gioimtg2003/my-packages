@@ -1,4 +1,8 @@
 export interface BankModuleOptions {
+  /**
+   * The base URL of the bank API. -->
+   */
+  baseUrl: string;
   auth: {
     /**
      * The username login to the bank account.

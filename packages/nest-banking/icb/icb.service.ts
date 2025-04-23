@@ -83,7 +83,7 @@ export class ICBService {
     const response = await firstValueFrom(
       this.httpService
         .post(
-          ICB_API_URL.GET_HIST_TRANSACTIONS,
+          `${this.config.baseUrl}/${ICB_API_URL.GET_HIST_TRANSACTIONS}`,
           { ...body },
           { headers, timeout: 10000 },
         )
@@ -118,7 +118,7 @@ export class ICBService {
     const { data } = await firstValueFrom(
       this.httpService
         .post<IICBResponse>(
-          `${ICB_API_URL.LOGIN}`,
+          `${this.config.baseUrl}/${ICB_API_URL.LOGIN}`,
           { ...body },
           { headers, timeout: 10000 },
         )
@@ -193,10 +193,13 @@ export class ICBService {
     const headers = await this.createHeaderNull();
 
     const { data } = await firstValueFrom(
-      this.httpService.get(`${ICB_API_URL.CAPTCHA}${this.captcha_id}`, {
-        headers,
-        timeout: 10000,
-      }),
+      this.httpService.get(
+        `${this.config.baseUrl}/${ICB_API_URL.CAPTCHA}${this.captcha_id}`,
+        {
+          headers,
+          timeout: 10000,
+        },
+      ),
     );
     this.captcha_code = String(bypassCaptcha(data));
     return this.captcha_code;
