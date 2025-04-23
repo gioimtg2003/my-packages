@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 @Module({
   imports: [
     ICBModule.forRoot({
+      baseUrl: 'https://api-ipay.vtb.vn',
       auth: {
         username: 'username',
         access_code: 'access_code',
