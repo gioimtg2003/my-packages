@@ -1,8 +1,11 @@
 {
-    "files": [],
-    "references": [
-        {
-            "path": "./nest-banking/tsconfig.build.json"
-        }
-    ],
+  "files": [],
+  "references": [
+    {
+      "path": "./nest-banking/tsconfig.build.json",
+    },
+    {
+      "path": "./ZoiComponent/tsconfig.build.json",
+    },
+  ],
 }

@@ -1,0 +1,61 @@
+/* Layout Form Item */
+
+form.no-blogg:not(.form-vertical) .form-item-horizontal {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.form-item-vertical {
+  display: flex;
+  flex-direction: column;
+}
+
+form.no-blogg .g-form-item.form-item-vertical {
+  margin-bottom: 8px;
+}
+
+/* .form-vertical .g-form-item:not(.form-item-horizontal) .g-form-item-label {
+  padding-bottom: 2rem;
+} */
+
+/* End */
+
+/* ******************* */
+
+/** * Form item label
+ */
+
+.no-blogg .g-form-item label[attribute-colon='true']::after {
+  content: ':';
+  position: relative;
+  margin-inline-end: 8px;
+}
+
+.g-form-item-label {
+  font-size: 0.875rem;
+  font-weight: 300;
+  color: #00000073;
+  overflow: hidden;
+  white-space: nowrap;
+  align-items: center;
+}
+
+form.no-blogg:not(.form-vertical) .form-item-horizontal .g-form-item-label {
+  min-height: 3rem;
+}
+
+.g-form-item-required::before {
+  content: '*';
+  color: red;
+  font-weight: 500;
+  font-size: 0.875rem;
+  display: inline-block;
+  text-align: left;
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+.g-form-item-label {
+}
+/* End */

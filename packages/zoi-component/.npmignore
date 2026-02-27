@@ -1,0 +1,11 @@
+**/*.ts
+*.ts
+
+!**/*.d.ts
+!*.d.ts
+
+# configuration
+tsconfig.json
+.prettierrc
+
+*.tsbuildinfo

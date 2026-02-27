@@ -21,6 +21,11 @@
         "strictPropertyInitialization": false,
         "types": [
             "node"
-        ]
+        ],
+        "paths": {
+            "@/*": [
+                "./src/*"
+            ]
+        }
     }
 }
