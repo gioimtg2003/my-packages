@@ -10,6 +10,6 @@ packages/**/*.js
 .npmrc
 pnpm-lock.yaml
 
-*.tsbuildinfo
+*.tsbuildinfopackag
 /apps
 .env
